@@ -9,13 +9,15 @@ import { Link } from "react-router-dom"
 import AccountView from "./views/AccountView"
 import Home from "./views/Home"; 
 import Generate from "./views/Generate";
+import Closet from "./views/ClosetView"; 
 
 let links = [
  { text: "Home ", link: "home" }, 
  { text: "Sign in ", link: "sign-in" },
  { text: "Sign up ", link: "sign-up" },
  { text: "Generate ", link: "generate" },
-  
+ { text: "Closet ", link: "closet" },
+
 ]
 
 // main App component
@@ -38,7 +40,12 @@ function App() {
           path="home" 
           element={<Home />} 
         />
-        
+
+        <Route 
+          path="closet" 
+          element={<Closet />} 
+        />
+
         <Route 
           path="sign-up" 
           element={<SignUp />}
