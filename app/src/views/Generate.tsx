@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 
-//basic generates outfits 
+//basic generate outfit functionality 
 
 export default function Generate() {
-  const clothes = ["Shirt", "Pants", "Dress", "Jacket", "Shoes"];
+  const outfits = ["Shirt + Pants", "Dress"];
 
   const [isRolling, setIsRolling] = useState(false);
   const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
@@ -25,7 +25,7 @@ export default function Generate() {
     setFinalIndex(null);
 
     intervalRef.current = window.setInterval(() => {
-      setDisplayIndex((prev) => (prev + 1) % clothes.length);
+      setDisplayIndex((prev) => (prev + 1) % outfits.length);
     }, 100);
 
     setTimeout(() => {
@@ -33,7 +33,7 @@ export default function Generate() {
         window.clearInterval(intervalRef.current);
         intervalRef.current = null;
       }
-      const chosen = Math.floor(Math.random() * clothes.length);
+      const chosen = Math.floor(Math.random() * outfits.length);
       setDisplayIndex(chosen);
       setFinalIndex(chosen);
       setIsRolling(false);
@@ -49,7 +49,7 @@ export default function Generate() {
         {buttonLabel}
       </button>
       <div style={{ marginTop: 20 }}>
-        {clothes.map((item, idx) => (
+        {outfits.map((item, idx) => (
           <div
             key={idx}
             style={{

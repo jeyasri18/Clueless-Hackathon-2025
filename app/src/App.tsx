@@ -48,6 +48,11 @@ function App() {
           path="generate" 
           element={<Generate />}
         />
+
+        <Route 
+          path="sign-in" 
+          element={<SignIn />}
+        />    
         
         <Route path="*" element={<PageNotFound />} />
       </Routes>

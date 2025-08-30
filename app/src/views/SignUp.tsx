@@ -1,4 +1,5 @@
-import { FormEvent } from "react";
+import React, { FormEvent } from "react";
+import { Route, Routes } from "react-router-dom";
 import { FormInput, GenerateFormElements } from "./SignIn";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import{auth} from "../firebase/config";

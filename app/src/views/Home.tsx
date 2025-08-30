@@ -1,5 +1,6 @@
 // Home.tsx
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   const sectionStyle: React.CSSProperties = {
@@ -19,6 +20,7 @@ const Home = () => {
     ...sectionStyle,
     backgroundColor: "#e0e0e0",
     fontSize: "2rem",
+    flexDirection: "column", // so text and button stack
   };
 
   return (
@@ -29,11 +31,23 @@ const Home = () => {
 
       <section style={contentSectionStyle}>
         <p>Ready to generate your next ootd?</p>
+        <Link to="/generate">
+          <button
+            style={{
+              marginTop: "20px",
+              padding: "10px 20px",
+              fontSize: "1.2rem",
+              borderRadius: "8px",
+              border: "none",
+              backgroundColor: "#000",
+              color: "#fff",
+              cursor: "pointer",
+            }}
+          >
+            Generate
+          </button>
+        </Link>
       </section>
-
-      {/* <section style={contentSectionStyle}>
-        <p>Another section. Add images, products, or anything here.</p>
-      </section> */}
     </div>
   );
 };
