@@ -6,11 +6,13 @@ import PageNotFound from "./views/PageNotFound"
 import SignUp from "./views/SignUp"
 import { Link } from "react-router-dom"
 import AccountView from "./views/AccountView"
+import Home from "./views/Home"; 
 
 let links = [
- { text: "Sign in", link: "sign-in" },
- { text: "Sign up", link: "sign-up" },
- { text: "Account", link: "account" },
+{ text: "Home ", link: "home" }, 
+ { text: "Sign in ", link: "sign-in" },
+ { text: "Sign up ", link: "sign-up" },
+  
 ]
 
 // main App component
@@ -28,18 +30,17 @@ function App() {
           index 
           element={<SignIn />}
         />
+
         <Route 
-          path="sign-in" 
-          element={<SignIn />}
+          path="home" 
+          element={<Home />} 
         />
+        
         <Route 
           path="sign-up" 
           element={<SignUp />}
         />
-        <Route 
-          path="account" 
-          element={<AccountView />}
-        />
+        
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </div>

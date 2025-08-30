@@ -57,7 +57,7 @@ const SignUp = () => {
         // this is all good ton uncomment ince the function is created 
         // });
         sessionStorage.setItem(response.user.uid, "User ID");
-        window.location.href = "/account";
+        window.location.href = "/home";
 
       })
       .catch ((error) => {
