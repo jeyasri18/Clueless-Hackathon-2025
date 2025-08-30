@@ -1,4 +1,5 @@
-import { Route, Routes } from "react-router"
+import React from "react";
+import { Route, Routes } from "react-router-dom"
 
 import './App.css'
 import SignIn from "./views/SignIn"
@@ -7,11 +8,13 @@ import SignUp from "./views/SignUp"
 import { Link } from "react-router-dom"
 import AccountView from "./views/AccountView"
 import Home from "./views/Home"; 
+import Generate from "./views/Generate";
 
 let links = [
-{ text: "Home ", link: "home" }, 
+ { text: "Home ", link: "home" }, 
  { text: "Sign in ", link: "sign-in" },
  { text: "Sign up ", link: "sign-up" },
+ { text: "Generate ", link: "generate" },
   
 ]
 
@@ -39,6 +42,11 @@ function App() {
         <Route 
           path="sign-up" 
           element={<SignUp />}
+        />
+
+        <Route 
+          path="generate" 
+          element={<Generate />}
         />
         
         <Route path="*" element={<PageNotFound />} />

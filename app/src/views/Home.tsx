@@ -24,16 +24,16 @@ const Home = () => {
   return (
     <div style={{ scrollBehavior: "smooth" }}>
       <section style={{ ...sectionStyle, backgroundColor: "#f5f5f5" }}>
-        <h1 style={heroTextStyle}>Watcha Wearin?</h1>
+        <h1 style={heroTextStyle}>Watcha Wearin'?</h1>
       </section>
 
       <section style={contentSectionStyle}>
-        <p>Welcome to the app! Scroll down to see more.</p>
+        <p>Ready to generate your next ootd?</p>
       </section>
 
-      <section style={contentSectionStyle}>
+      {/* <section style={contentSectionStyle}>
         <p>Another section. Add images, products, or anything here.</p>
-      </section>
+      </section> */}
     </div>
   );
 };
