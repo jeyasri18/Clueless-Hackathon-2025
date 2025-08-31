@@ -13,7 +13,7 @@ export default function Generate() {
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
-  const API = import.meta.env.VITE_API_BASE ?? ""; // if you added VITE_API_BASE, it uses it; else proxy /api
+ // const API = import.meta.env.VITE_API_BASE ?? ""; // if you added VITE_API_BASE, it uses it; else proxy /api
 
   async function getPosition(): Promise<{ lat: number; lon: number }> {
     return new Promise((resolve) => {
@@ -32,10 +32,15 @@ export default function Generate() {
     try {
       const { lat, lon } = await getPosition();
       const uid = auth?.currentUser?.uid; // may be undefined (guest)
-      const qs  = new URLSearchParams({ lat: String(lat), lon: String(lon) });
+      //const qs  = new URLSearchParams({ lat: String(lat), lon: String(lon) });
+      const qs  = new URLSearchParams({ lat: String(lat), lon: String(lon), skipWeather: "1" });
+      // change thi when we fix the weather api 
       if (uid) qs.set("uid", uid);
 
-      const res = await fetch(`${API}/api/outfit?${qs.toString()}`);
+      //const res = await fetch(`${API}/api/outfit?${qs.toString()}`);
+      // Vite proxy → http://localhost:8787
+      //const res = await fetch(`/api/outfit?${qs.toString()}`);
+      const res = await fetch(`/api/outfit?${qs.toString()}`);
       const ct = res.headers.get("content-type") || "";
       if (!ct.includes("application/json")) {
         const text = await res.text();

@@ -56,10 +56,10 @@ const ClosetView: React.FC = () => {
       } = { caption: "" };
 
       try {
-        const resp = await fetch(tagEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image_url: url }),
+        const resp = await fetch(`/api/tag`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ image_url: url })
         });
         tagged = await resp.json();
       } catch (err) {

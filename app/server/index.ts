@@ -3,10 +3,12 @@ import express, { type Request, type Response } from "express";
 import cors from "cors";
 import "dotenv/config";
 import { createClient } from "@supabase/supabase-js";
+import { tagRouter } from "./routes/tag";
 
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use("/api", tagRouter);
 
 const PORT = Number(process.env.PORT || 8787);
 const PUBLIC_UID = process.env.PUBLIC_UID || "demo";
@@ -134,5 +136,47 @@ app.get("/api/outfit", async (req: Request, res: Response) => {
     res.status(500).json({ error: "route_crash", detail: e?.message || String(e) });
   }
 });
+// /api/tag — captions + naive tags using FashionBLIP-1 (Hugging Face)
+app.post("/api/tag", async (req: Request, res: Response) => {
+  try {
+    const { image_url } = req.body || {};
+    if (!image_url) return res.status(400).json({ error: "image_url required" });
+
+    const r = await fetch("https://api-inference.huggingface.co/models/rcfg/FashionBLIP-1", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.HF_TOKEN!}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ inputs: image_url }),
+    });
+
+    if (!r.ok) {
+      const text = await r.text();
+      return res.status(502).json({ error: `hf_http_error`, status: r.status, body: text.slice(0,200) });
+    }
+
+    const data = await r.json(); // usually [{ generated_text: "..." }]
+    const caption =
+      Array.isArray(data) && data[0]?.generated_text ? data[0].generated_text : String(data);
+
+    const low = caption.toLowerCase();
+    const grab = (re: RegExp) => low.match(re)?.[1];
+
+    const type =
+      /dress/.test(low) ? "dress" :
+      /(shirt|t[-\s]?shirt|tee|blouse)/.test(low) ? "shirt" :
+      /(shorts)/.test(low) ? "shorts" : undefined;
+
+    const color    = grab(/\b(black|white|navy|blue|red|green|beige|brown|grey|gray|pink|yellow|purple|orange)\b/);
+    const cut      = grab(/\b(oversized|boxy|slim|regular|high-waisted|a-line|fit-and-flare|wide-leg)\b/);
+    const material = grab(/\b(cotton|linen|denim|polyester|wool|silk|rayon|nylon|leather|satin|knit)\b/);
+
+    res.json({ caption, type, color, cut, material, tags: { color, cut, material } });
+  } catch (e: any) {
+    res.status(500).json({ error: "hf_route_crash", detail: e?.message || String(e) });
+  }
+});
+
 
 app.listen(PORT, () => console.log(`API listening on http://localhost:${PORT}`));
