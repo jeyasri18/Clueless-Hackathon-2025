@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react"
 import {
   uploadTop,
   uploadBottom,
@@ -6,102 +6,81 @@ import {
   listTops,
   listBottoms,
   listDresses,
-} from "../supabase/storage";
-import { insertClothingRow } from "../supabase/clothes";
-import { auth as fbAuth } from "../firebase/config";
+} from "../supabase/storage"
+import { generateOutfit } from "../lib/geminicall"
 
 const ClosetView: React.FC = () => {
-  const [topFiles, setTopFiles] = useState<string[]>([]);
-  const [bottomFiles, setBottomFiles] = useState<string[]>([]);
-  const [dressFiles, setDressFiles] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [topFiles, setTopFiles] = useState<string[]>([])
+  const [bottomFiles, setBottomFiles] = useState<string[]>([])
+  const [dressFiles, setDressFiles] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
+  const [outfits, setOutfits] = useState<any[]>([]) 
+  const [weather, setWeather] = useState("sunny 25°C") // hardcoded for now
 
   useEffect(() => {
-    void loadAllFiles();
-  }, []);
+    loadAllFiles()
+  }, [])
 
   async function loadAllFiles() {
-    setLoading(true);
-    setTopFiles(await listTops());
-    setBottomFiles(await listBottoms());
-    setDressFiles(await listDresses());
-    setLoading(false);
+    setLoading(true)
+    setTopFiles(await listTops())
+    setBottomFiles(await listBottoms())
+    setDressFiles(await listDresses())
+    setLoading(false)
   }
 
   async function handleUpload(
     e: React.ChangeEvent<HTMLInputElement>,
     type: "top" | "bottom" | "dress"
   ) {
-    if (!e.target.files || e.target.files.length === 0) return;
-    const file = e.target.files[0];
+    if (!e.target.files || e.target.files.length === 0) return
+    const file = e.target.files[0]
 
-    setLoading(true);
-    let url: string | null = null;
+    setLoading(true)
+    let url: string | null = null
 
-    if (type === "top") url = await uploadTop(file);
-    else if (type === "bottom") url = await uploadBottom(file);
-    else if (type === "dress") url = await uploadDress(file);
+    if (type === "top") url = await uploadTop(file)
+    else if (type === "bottom") url = await uploadBottom(file)
+    else if (type === "dress") url = await uploadDress(file)
 
     if (url) {
-      // Tag via backend (HF token must NOT live in the browser)
-      const tagEndpoint = import.meta.env.VITE_TAG_ENDPOINT ?? "/api/tag";
-
-      let tagged: {
-        caption: string;
-        type?: string;
-        color?: string;
-        cut?: string;
-        material?: string;
-        tags?: any;
-      } = { caption: "" };
-
-      try {
-        const resp = await fetch(tagEndpoint, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ image_url: url }),
-        });
-        tagged = await resp.json();
-      } catch (err) {
-        console.warn("Tagging failed, inserting without tags:", err);
-      }
-
-      const user = fbAuth.currentUser;
-      const user_id = user?.uid ?? "anon";
-
-      await insertClothingRow({
-        user_id,
-        image_url: url,
-        // fall back to your UI "type" if the tagger misses it
-        type:
-          tagged.type ??
-          (type === "top" ? "shirt" : type === "bottom" ? "shorts" : "dress"),
-        color: tagged.color,
-        cut: tagged.cut,
-        material: tagged.material,
-        raw_caption: tagged.caption,
-        tags: tagged.tags,
-      });
-
-      console.log(`Uploaded ${type} at:`, url);
-      await loadAllFiles();
+      console.log(`Uploaded ${type} at:`, url)
+      await loadAllFiles()
     }
 
-    setLoading(false);
+    setLoading(false)
+  }
+
+  async function handleGenerate() {
+    setLoading(true)
+    const allUrls = [...topFiles, ...bottomFiles, ...dressFiles]
+    if (allUrls.length === 0) {
+      alert("Upload some clothes first!")
+      setLoading(false)
+      return
+    }
+
+    try {
+      const response = await generateOutfit(allUrls, weather)
+      // Try to parse JSON
+      let parsed = []
+      try {
+        parsed = JSON.parse(response)
+      } catch {
+        parsed = [{ outfit: "Error parsing Gemini response", description: response }]
+      }
+      setOutfits(parsed)
+    } catch (err) {
+      console.error("Gemini error:", err)
+    }
+    setLoading(false)
   }
 
   const renderImages = (files: string[]) =>
     files.length === 0 ? (
       <p>No items yet.</p>
     ) : (
-      <div
-        style={{
-          display: "flex",
-          flexWrap: "wrap",
-          gap: "10px",
-          marginTop: "10px",
-        }}
-      >
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "10px" }}>
         {files.map((url) => (
           <img
             key={url}
@@ -116,7 +95,7 @@ const ClosetView: React.FC = () => {
           />
         ))}
       </div>
-    );
+    )
 
   return (
     <div style={{ padding: "20px" }}>
@@ -163,9 +142,28 @@ const ClosetView: React.FC = () => {
         </div>
       </div>
 
+      <div style={{ marginTop: "20px" }}>
+        <button onClick={handleGenerate} disabled={loading}>
+          {loading ? "Generating..." : "Generate Outfits"}
+        </button>
+      </div>
+
+      {outfits.length > 0 && (
+        <div style={{ marginTop: "20px" }}>
+          <h3>Suggested Outfits</h3>
+          <ul>
+            {outfits.map((o, idx) => (
+              <li key={idx}>
+                <strong>{o.outfit}</strong>: {o.description}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {loading && <p>Loading...</p>}
     </div>
-  );
-};
+  )
+}
 
-export default ClosetView;
+export default ClosetView

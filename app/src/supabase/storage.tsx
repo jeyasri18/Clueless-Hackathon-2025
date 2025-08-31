@@ -1,4 +1,4 @@
-import { supabase } from "./config.tsx"
+import { supabase } from "./config"
 
 // function to upload images (by type)
 export async function uploadTop(file: File, folder = "clothes/tops"): Promise<string | null> {
@@ -49,7 +49,7 @@ export async function uploadBottom(file: File, folder = "clothes/bottoms"): Prom
   return publicData.publicUrl
 }
 
-// functions to list images (by type)
+// function to list images (by type)
 export async function listDresses(folder: string = "clothes/dresses"): Promise<string[]> {
   const { data, error } = await supabase.storage.from("Closet").list(folder)
 
@@ -96,4 +96,14 @@ export async function listBottoms(folder: string = "clothes/bottoms"): Promise<s
   })
 
   return urls
+}
+
+// function to delete files
+export async function deleteFile(fileName: string, folder = "clothes"): Promise<boolean> {
+  const { error } = await supabase.storage.from("Closet").remove([`${folder}/${fileName}`])
+  if (error) {
+    console.error("Delete failed:", error.message)
+    return false
+  }
+  return true
 }
